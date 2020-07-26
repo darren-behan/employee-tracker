@@ -1,0 +1,25 @@
+{
+  "name": "employee-tracker",
+  "version": "1.0.0",
+  "description": "a cms app that allows users to view and interact with information stored in a database",
+  "main": "index.js",
+  "dependencies": {
+    "console.table": "^0.10.0",
+    "inquirer": "^6.2.1",
+    "mysql": "^2.16.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/darren-behan/employee-tracker.git"
+  },
+  "author": "Darren Behan",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/darren-behan/employee-tracker/issues"
+  },
+  "homepage": "https://github.com/darren-behan/employee-tracker#readme"
+}
