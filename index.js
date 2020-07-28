@@ -24,9 +24,6 @@ connection.connect(function (err) {
   start();
 });
 
-// What would you like to do?
-// View all employees by manager
-// Filter by manager => OUTER JOIN
 // Add employee
 // First Name
 // Last Name
@@ -46,8 +43,8 @@ connection.connect(function (err) {
 // Exit
 
 // console.log() if operation was successful => example: "${first_name} ${last_name} has been added"
-// After user selects each option, run start() function again
 
+// Start function to prompt the user on what they would like to see in the employee tracker
 function start() {
   inquirer
     .prompt({
@@ -67,13 +64,16 @@ function start() {
       ],
     })
     .then(function (answer) {
-      // based on their answer, call the function relevant to the option selected
+      // based on the users answer, call the function relevant to the option selected
       switch (answer.databaseOptions) {
         case "View all employees":
           listEmployees();
           break;
         case "View all employees by department":
           listEmployeesByDepartment();
+          break;
+        case "View all employees by manager":
+          listEmployeesByManager();
           break;
         case "Exit":
           connection.end();
@@ -98,10 +98,7 @@ const listEmployees = () => {
   );
 };
 
-// View all employees by department
-// Filter by department => OUTER JOIN
-
-// Returns a formatted table showing all employees by the department selected
+// Returns a formatted table showing all employees under the department selected
 const listEmployeesByDepartment = () => {
   connection.query("SELECT * FROM employeeTracker_DB.department;", function (
     err,
@@ -121,6 +118,35 @@ const listEmployeesByDepartment = () => {
         const query =
           "SELECT emps.id, emps.first_name, emps.last_name, role.title AS Role, dept.name AS Department, role.salary AS Salary, concat(mgrs.first_name, ' ', mgrs.last_name) AS Manager FROM department dept LEFT JOIN role ON role.department_id = dept.id LEFT JOIN employee emps ON emps.role_id = role.id LEFT JOIN employee mgrs ON emps.manager_id = mgrs.id WHERE dept.name = ?;";
           connection.query(query, [answer.department], (err, res) => {
+            if (err) throw err;
+            console.table(res);
+            // re-prompt the user
+            start();
+        });
+      });
+  });
+};
+
+// Returns a formatted table showing all employees reporting into the manager selected
+const listEmployeesByManager = () => {
+  connection.query("SELECT DISTINCT concat(mgrs.first_name, ' ', mgrs.last_name) AS Manager FROM employee emps LEFT JOIN employee mgrs ON emps.manager_id = mgrs.id WHERE concat(mgrs.first_name, ' ', mgrs.last_name) IS NOT NULL;", function (
+    err,
+    result
+  ) {
+    if (err) {
+      throw err;
+    }
+    inquirer
+      .prompt({
+        name: "manager",
+        type: "list",
+        message: "Please choose a manager:",
+        choices: result.map((manager) => manager.Manager),
+      })
+      .then((answer) => {
+        const query =
+          "SELECT emps.id, emps.first_name, emps.last_name, role.title AS Role, dept.name AS Department, role.salary AS Salary, concat(mgrs.first_name, ' ', mgrs.last_name) AS Manager FROM department dept LEFT JOIN role ON role.department_id = dept.id LEFT JOIN employee emps ON emps.role_id = role.id LEFT JOIN employee mgrs ON emps.manager_id = mgrs.id WHERE concat(mgrs.first_name, ' ', mgrs.last_name) = ?;";
+          connection.query(query, [answer.manager], (err, res) => {
             if (err) throw err;
             console.table(res);
             // re-prompt the user
