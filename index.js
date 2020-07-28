@@ -92,15 +92,13 @@ function start() {
   // manager
 
 // Returns a formatted table showing all employees
-function listEmployees() {
-  connection.query("SELECT employee.id, employee.first_name, employee.last_name, role.title, department.department_name AS department, role.salary FROM employeeTracker_DB.employee LEFT JOIN employeeTracker_DB.role ON employee.role_id = role.id LEFT JOIN employeeTracker_DB.department on role.department_id = department.id;", function (
+const listEmployees = () => {
+  connection.query("SELECT emps.id, emps.first_name, emps.last_name, role.title AS Role, dept.name AS Department, role.salary AS Salary, concat(mgrs.first_name, ' ', mgrs.last_name) AS Manager FROM employee emps LEFT JOIN employee mgrs ON emps.manager_id = mgrs.id LEFT JOIN role ON emps.role_id = role.id LEFT JOIN department dept ON role.department_id = dept.id;", function (
     err,
     result
   ) {
     if (err) {
       throw err;
-    } else if (result === null) {
-      console.log("No employees have been added yet!")
     } else {
       console.table(result);
     }
@@ -112,10 +110,10 @@ function listEmployees() {
 // View all employees by department
   // Filter by department => OUTER JOIN
 
-// Returns a formatted table showing all employees by department
-function listEmployeesByDepartment() {
+// Returns a formatted table showing all employees by the department selected
+const listEmployeesByDepartment = () => {
   connection.query(
-    "SELECT employee.id, first_name, last_name, role_id, manager_id, department.id, department.department_name FROM ((employeeTracker_DB.employee RIGHT JOIN employeeTracker_DB.role ON role_id = role.id) RIGHT JOIN employeeTracker_DB.department ON department_id = department.id)",
+    "SELECT employee.id, first_name, last_name, role_id, manager_id, department.id, department.name FROM ((employeeTracker_DB.employee RIGHT JOIN employeeTracker_DB.role ON role_id = role.id) RIGHT JOIN employeeTracker_DB.department ON department_id = department.id)",
     function (err, result) {
       if (err) throw err;
       console.table(result);
