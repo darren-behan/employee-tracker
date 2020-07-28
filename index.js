@@ -26,22 +26,22 @@ connection.connect(function (err) {
 
 // What would you like to do?
 // View all employees by manager
-  // Filter by manager => OUTER JOIN
+// Filter by manager => OUTER JOIN
 // Add employee
-  // First Name
-  // Last Name
-  // Role
-    // Required list of roles to choose from
-  // Manager
-    // Require list of managers to choose from and an option of "none"
+// First Name
+// Last Name
+// Role
+// Required list of roles to choose from
+// Manager
+// Require list of managers to choose from and an option of "none"
 // Remove employee
-  // List employees
+// List employees
 // Update employee role
-  // List employees
-  // List roles to update for employee
+// List employees
+// List roles to update for employee
 // Update employee manager
-  // List employees
-  // List managers to update for employee
+// List employees
+// List managers to update for employee
 // View all roles
 // Exit
 
@@ -82,43 +82,50 @@ function start() {
     });
 }
 
-// View all employees
-  // id
-  // first_name
-  // last_name
-  // title
-  // department
-  // salary
-  // manager
-
 // Returns a formatted table showing all employees
 const listEmployees = () => {
-  connection.query("SELECT emps.id, emps.first_name, emps.last_name, role.title AS Role, dept.name AS Department, role.salary AS Salary, concat(mgrs.first_name, ' ', mgrs.last_name) AS Manager FROM employee emps LEFT JOIN employee mgrs ON emps.manager_id = mgrs.id LEFT JOIN role ON emps.role_id = role.id LEFT JOIN department dept ON role.department_id = dept.id;", function (
+  connection.query(
+    "SELECT emps.id, emps.first_name, emps.last_name, role.title AS Role, dept.name AS Department, role.salary AS Salary, concat(mgrs.first_name, ' ', mgrs.last_name) AS Manager FROM employee emps LEFT JOIN employee mgrs ON emps.manager_id = mgrs.id LEFT JOIN role ON emps.role_id = role.id LEFT JOIN department dept ON role.department_id = dept.id;",
+    function (err, result) {
+      if (err) {
+        throw err;
+      } else {
+        console.table(result);
+      }
+      // re-prompt the user
+      start();
+    }
+  );
+};
+
+// View all employees by department
+// Filter by department => OUTER JOIN
+
+// Returns a formatted table showing all employees by the department selected
+const listEmployeesByDepartment = () => {
+  connection.query("SELECT * FROM employeeTracker_DB.department;", function (
     err,
     result
   ) {
     if (err) {
       throw err;
-    } else {
-      console.table(result);
     }
-    // re-prompt the user
-    start();
+    inquirer
+      .prompt({
+        name: "department",
+        type: "list",
+        message: "Please choose a department:",
+        choices: result.map((department) => department.name),
+      })
+      .then((answer) => {
+        const query =
+          "SELECT emps.id, emps.first_name, emps.last_name, role.title AS Role, dept.name AS Department, role.salary AS Salary, concat(mgrs.first_name, ' ', mgrs.last_name) AS Manager FROM department dept LEFT JOIN role ON role.department_id = dept.id LEFT JOIN employee emps ON emps.role_id = role.id LEFT JOIN employee mgrs ON emps.manager_id = mgrs.id WHERE dept.name = ?;";
+          connection.query(query, [answer.department], (err, res) => {
+            if (err) throw err;
+            console.table(res);
+            // re-prompt the user
+            start();
+        });
+      });
   });
-}
-
-// View all employees by department
-  // Filter by department => OUTER JOIN
-
-// Returns a formatted table showing all employees by the department selected
-const listEmployeesByDepartment = () => {
-  connection.query(
-    "SELECT employee.id, first_name, last_name, role_id, manager_id, department.id, department.name FROM ((employeeTracker_DB.employee RIGHT JOIN employeeTracker_DB.role ON role_id = role.id) RIGHT JOIN employeeTracker_DB.department ON department_id = department.id)",
-    function (err, result) {
-      if (err) throw err;
-      console.table(result);
-      // re-prompt the user
-      start();
-    }
-  );
-}
+};
