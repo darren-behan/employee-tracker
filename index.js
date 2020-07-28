@@ -45,7 +45,7 @@ connection.connect(function (err) {
 // console.log() if operation was successful => example: "${first_name} ${last_name} has been added"
 
 // Start function to prompt the user on what they would like to see in the employee tracker
-function start() {
+const start = () => {
   inquirer
     .prompt({
       name: "databaseOptions",
@@ -75,6 +75,9 @@ function start() {
         case "View all employees by manager":
           listEmployeesByManager();
           break;
+        case "Add employee":
+          addEmployee();
+          break;
         case "Exit":
           connection.end();
           break;
@@ -100,10 +103,10 @@ const listEmployees = () => {
 
 // Returns a formatted table showing all employees under the department selected
 const listEmployeesByDepartment = () => {
-  connection.query("SELECT * FROM employeeTracker_DB.department;", function (
+  connection.query("SELECT * FROM employeeTracker_DB.department;", (
     err,
     result
-  ) {
+  ) => {
     if (err) {
       throw err;
     }
@@ -129,10 +132,10 @@ const listEmployeesByDepartment = () => {
 
 // Returns a formatted table showing all employees reporting into the manager selected
 const listEmployeesByManager = () => {
-  connection.query("SELECT DISTINCT concat(mgrs.first_name, ' ', mgrs.last_name) AS Manager FROM employee emps LEFT JOIN employee mgrs ON emps.manager_id = mgrs.id WHERE concat(mgrs.first_name, ' ', mgrs.last_name) IS NOT NULL;", function (
+  connection.query("SELECT DISTINCT concat(mgrs.first_name, ' ', mgrs.last_name) AS Manager FROM employee emps LEFT JOIN employee mgrs ON emps.manager_id = mgrs.id WHERE concat(mgrs.first_name, ' ', mgrs.last_name) IS NOT NULL;", (
     err,
     result
-  ) {
+  ) => {
     if (err) {
       throw err;
     }
@@ -153,5 +156,46 @@ const listEmployeesByManager = () => {
             start();
         });
       });
+  });
+};
+
+// Add a new employee
+const addEmployee = () => {
+  connection.query("SELECT DISTINCT emps.id, CONCAT(first_name, ' ', last_name) AS Manager, role.id, role.title FROM employee emps LEFT JOIN role ON emps.role_id = role.id", (err, result) => {
+    if (err) throw err;
+    inquirer
+    .prompt([
+    {
+      name: "firstName",
+      type: "input",
+      message: "Enter the new employees first name:"
+    },
+    {
+      name: "lastName",
+      type: "input",
+      message: "Enter the new employees last name:"
+    },
+    {
+      name: "manager",
+      type: "list",
+      message: "Please choose the employees manager:",
+      choices: result.map(manager => manager.Manager)
+    },
+    {
+      name: "role",
+      type: "list",
+      message: "Please choose the employees role:",
+      choices: result.map(role => role.title)
+    }
+    ]).then((answer) => {
+      const query =
+        "INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, (SELECT id FROM role WHERE title = ? ), (SELECT id FROM (SELECT id FROM employee WHERE CONCAT(first_name,' ',last_name) = ? ) AS tmptable));";
+        connection.query(query, [answer.firstName, answer.lastName, answer.role, answer.manager ], (err, res) => {
+          if (err) throw err;
+          console.table(res);
+          // re-prompt the user
+          start();
+      });
+    });
   });
 };
