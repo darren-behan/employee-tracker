@@ -41,6 +41,7 @@ const start = () => {
         "View all employees by manager",
         "Add employee",
         "Remove employee",
+        "Update employees role",
         "View all roles",
         "Add a role",
         "View all departments",
@@ -65,6 +66,9 @@ const start = () => {
           break;
         case "Remove employee":
           removeEmployee();
+          break;
+        case "Update employees role":
+          updateEmployeeRole();
           break;
         case "View all roles":
           viewAllRoles();
@@ -210,7 +214,7 @@ const removeEmployee = () => {
       name: "employee",
       type: "list",
       message: "Choose the employee that you want to remove:",
-      choices: result.map(employee => employee.Name) // Require an option of "none" to be added
+      choices: result.map(employee => employee.Name)
     }
     ]).then((answer) => {
       const query =
@@ -218,6 +222,38 @@ const removeEmployee = () => {
         connection.query(query, [answer.employee], (err, res) => {
           if (err) throw err;
           console.log("Removed successfully!");
+          // re-prompt the user
+          start();
+      });
+    });
+  });
+};
+
+// Update employee role
+const updateEmployeeRole = () => {
+  connection.query("SELECT DISTINCT concat(first_name,' ',last_name) AS Name, role.title FROM employeeTracker_DB.employee LEFT JOIN role ON employee.role_id = role.id", (err, result) => {
+    if (err) throw err;
+    console.log(result);
+    inquirer
+    .prompt([
+    {
+      name: "employee",
+      type: "list",
+      message: "Choose the employee whose role you would like to update:",
+      choices: result.map(employee => employee.Name)
+    },
+    {
+      name: "role",
+      type: "list",
+      message: "Choose the new role:",
+      choices: result.map(role => role.title)
+    }
+    ]).then((answer) => {
+      const query =
+        "UPDATE employee SET role_id = (SELECT id FROM role WHERE title = ? ) WHERE id = (SELECT id FROM(SELECT id FROM employee WHERE CONCAT(first_name,' ',last_name) = ?) AS tmptable)";
+        connection.query(query, [answer.role, answer.employee], (err, res) => {
+          if (err) throw err;
+          console.log("Updated successfully!");
           // re-prompt the user
           start();
       });
