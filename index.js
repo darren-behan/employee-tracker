@@ -24,8 +24,6 @@ connection.connect(function (err) {
   start();
 });
 
-// Remove employee
-// List employees
 // Update employee role
 // List employees
 // List roles to update for employee
@@ -33,6 +31,10 @@ connection.connect(function (err) {
 // List employees
 // List managers to update for employee
 // View all roles
+
+// * Add departments, roles
+// * View departments, roles,
+// * Update employee roles
 
 // console.log() if operation was successful => example: "${first_name} ${last_name} has been added"
 
@@ -49,9 +51,10 @@ const start = () => {
         "View all employees by manager",
         "Add employee",
         "Remove employee",
-        "Update employee role",
-        "Update employee manager",
         "View all roles",
+        "Add a role",
+        "View all departments",
+        "Add a department",
         "Exit",
       ],
     })
@@ -72,6 +75,9 @@ const start = () => {
           break;
         case "Remove employee":
           removeEmployee();
+          break;
+        case "View all roles":
+          viewAllRoles();
           break;
         case "Exit":
           connection.end();
@@ -195,7 +201,7 @@ const addEmployee = () => {
   });
 };
 
-// Add a new employee
+// Remove employee
 const removeEmployee = () => {
   connection.query("SELECT concat(first_name,' ',last_name) AS Name FROM employeeTracker_DB.employee", (err, result) => {
     if (err) throw err;
@@ -219,3 +225,15 @@ const removeEmployee = () => {
     });
   });
 };
+
+// View all roles
+const viewAllRoles = () => {
+  const query =
+    "SELECT title AS 'Title' FROM role";
+    connection.query(query, (err, res) => {
+      if (err) throw err;
+      console.table(res);
+      // re-prompt the user
+      start();
+  });
+}
