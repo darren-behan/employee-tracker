@@ -79,6 +79,9 @@ const start = () => {
         case "View all roles":
           viewAllRoles();
           break;
+        case "Add a role":
+          addRole();
+          break;
         case "Exit":
           connection.end();
           break;
@@ -235,5 +238,40 @@ const viewAllRoles = () => {
       console.table(res);
       // re-prompt the user
       start();
+  });
+}
+
+// Add a role
+const addRole = () => {
+  connection.query("SELECT name FROM employeeTracker_DB.department;", (err, result) => {
+    if (err) throw err;
+    inquirer
+    .prompt([
+    {
+      name: "title",
+      type: "input",
+      message: "Enter the new role title:"
+    },
+    {
+      name: "salary",
+      type: "input",
+      message: "Enter the new salary for the role:"
+    },
+    {
+      name: "department",
+      type: "list",
+      message: "Please choose the department the role sits under:",
+      choices: result.map(department => department.name) // Require an option of "none" to be added
+    }
+    ]).then((answer) => {
+      const query =
+        "INSERT INTO role (title, salary, department_id) VALUES (?, ?, (SELECT id FROM department WHERE name = ? ));";
+        connection.query(query, [answer.title, answer.salary, answer.department], (err, res) => {
+          if (err) throw err;
+          console.log("Added successfully!");
+          // re-prompt the user
+          start();
+      });
+    });
   });
 }
