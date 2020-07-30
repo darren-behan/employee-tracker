@@ -32,8 +32,8 @@ connection.connect(function (err) {
 // List managers to update for employee
 // View all roles
 
-// * Add departments, roles
-// * View departments, roles,
+// * Add departments
+// * View departments
 // * Update employee roles
 
 // console.log() if operation was successful => example: "${first_name} ${last_name} has been added"
@@ -81,6 +81,9 @@ const start = () => {
           break;
         case "Add a role":
           addRole();
+          break;
+        case "View all departments":
+          viewAllDepartments();
           break;
         case "Exit":
           connection.end();
@@ -275,3 +278,16 @@ const addRole = () => {
     });
   });
 }
+
+// View all departments
+const viewAllDepartments = () => {
+  const query =
+    "SELECT name AS 'Name' FROM department";
+    connection.query(query, (err, res) => {
+      if (err) throw err;
+      console.table(res);
+      // re-prompt the user
+      start();
+  });
+}
+
