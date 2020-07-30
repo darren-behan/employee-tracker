@@ -27,16 +27,6 @@ connection.connect(function (err) {
 // Update employee role
 // List employees
 // List roles to update for employee
-// Update employee manager
-// List employees
-// List managers to update for employee
-// View all roles
-
-// * Add departments
-// * View departments
-// * Update employee roles
-
-// console.log() if operation was successful => example: "${first_name} ${last_name} has been added"
 
 // Start function to prompt the user on what they would like to see in the employee tracker
 const start = () => {
@@ -84,6 +74,9 @@ const start = () => {
           break;
         case "View all departments":
           viewAllDepartments();
+          break;
+        case "Add a department":
+          addDepartment();
           break;
         case "Exit":
           connection.end();
@@ -199,7 +192,7 @@ const addEmployee = () => {
         "INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, (SELECT id FROM role WHERE title = ? ), (SELECT id FROM (SELECT id FROM employee WHERE CONCAT(first_name,' ',last_name) = ? ) AS tmptable));";
         connection.query(query, [answer.firstName, answer.lastName, answer.role, answer.manager ], (err, res) => {
           if (err) throw err;
-          console.log("Added successfully!");
+          console.log("${firstName} ${lastName} has been added successfully!");
           // re-prompt the user
           start();
       });
@@ -291,3 +284,24 @@ const viewAllDepartments = () => {
   });
 }
 
+// Add a role
+const addDepartment = (err, result) => {
+  if (err) throw err;
+  inquirer
+  .prompt([
+  {
+    name: "title",
+    type: "input",
+    message: "Enter the new department name:"
+  }
+  ]).then((answer) => {
+    const query =
+      "INSERT INTO department (name) VALUES (?);";
+      connection.query(query, [answer.title, answer.salary, answer.department], (err, res) => {
+        if (err) throw err;
+        console.log("Added successfully!");
+        // re-prompt the user
+        start();
+    });
+  });
+}
