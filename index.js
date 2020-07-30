@@ -13,7 +13,7 @@ const connection = mysql.createConnection({
   user: "root",
 
   // Your password
-  password: "",
+  password: "Andrew1312",
   database: "employeeTracker_DB",
 });
 
@@ -24,13 +24,6 @@ connection.connect(function (err) {
   start();
 });
 
-// Add employee
-// First Name
-// Last Name
-// Role
-// Required list of roles to choose from
-// Manager
-// Require list of managers to choose from and an option of "none"
 // Remove employee
 // List employees
 // Update employee role
@@ -40,7 +33,6 @@ connection.connect(function (err) {
 // List employees
 // List managers to update for employee
 // View all roles
-// Exit
 
 // console.log() if operation was successful => example: "${first_name} ${last_name} has been added"
 
@@ -77,6 +69,9 @@ const start = () => {
           break;
         case "Add employee":
           addEmployee();
+          break;
+        case "Remove employee":
+          removeEmployee();
           break;
         case "Exit":
           connection.end();
@@ -179,20 +174,45 @@ const addEmployee = () => {
       name: "manager",
       type: "list",
       message: "Please choose the employees manager:",
-      choices: result.map(manager => manager.Manager)
+      choices: result.map(manager => manager.Manager) // Require an option of "none" to be added
     },
     {
       name: "role",
       type: "list",
       message: "Please choose the employees role:",
-      choices: result.map(role => role.title)
+      choices: result.map(role => role.title) // Require an option of "none" to be added
     }
     ]).then((answer) => {
       const query =
         "INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, (SELECT id FROM role WHERE title = ? ), (SELECT id FROM (SELECT id FROM employee WHERE CONCAT(first_name,' ',last_name) = ? ) AS tmptable));";
         connection.query(query, [answer.firstName, answer.lastName, answer.role, answer.manager ], (err, res) => {
           if (err) throw err;
-          console.table(res);
+          console.log("Added successfully!");
+          // re-prompt the user
+          start();
+      });
+    });
+  });
+};
+
+// Add a new employee
+const removeEmployee = () => {
+  connection.query("SELECT concat(first_name,' ',last_name) AS Name FROM employeeTracker_DB.employee", (err, result) => {
+    if (err) throw err;
+    inquirer
+    .prompt([
+    {
+      name: "employee",
+      type: "list",
+      message: "Choose the employee that you want to remove:",
+      choices: result.map(employee => employee.Name) // Require an option of "none" to be added
+    }
+    ]).then((answer) => {
+      const query =
+        "DELETE FROM employee WHERE id = (SELECT id FROM(SELECT id FROM employee WHERE CONCAT(first_name,' ',last_name) = ?) AS tmptable)";
+        connection.query(query, [answer.employee], (err, res) => {
+          if (err) throw err;
+          console.log("Removed successfully!");
           // re-prompt the user
           start();
       });
