@@ -45,6 +45,7 @@ const start = () => {
         "Update employee role",
         "View all roles",
         "Add a role",
+        "Remove a role",
         "View all departments",
         "Add a department",
         "Remove a department",
@@ -77,6 +78,9 @@ const start = () => {
           break;
         case "Add a role":
           addRole();
+          break;
+        case "Remove a role":
+          removeRole();
           break;
         case "View all departments":
           viewAllDepartments();
@@ -312,6 +316,31 @@ const addRole = () => {
     });
   });
 }
+
+// Remove role
+const removeRole = () => {
+  connection.query("SELECT title FROM employeeTracker_DB.role", (err, result) => {
+    if (err) throw err;
+    inquirer
+    .prompt([
+    {
+      name: "role",
+      type: "list",
+      message: "Choose the role that you want to remove:",
+      choices: result.map(role => role.title)
+    }
+    ]).then((answer) => {
+      const query =
+        "DELETE FROM role WHERE id = (SELECT id FROM(SELECT id FROM role WHERE title = ?) AS tmptable)";
+        connection.query(query, [answer.role], (err, res) => {
+          if (err) throw err;
+          console.log("Removed successfully!");
+          // re-prompt the user
+          start();
+      });
+    });
+  });
+};
 
 // View all departments
 const viewAllDepartments = () => {
