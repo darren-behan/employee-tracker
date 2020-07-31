@@ -86,11 +86,11 @@ How do you deliver this? Here are some guidelines:
 
 * The command-line application should allow users to:
 
-  * Add departments, roles, employees
+  * Add departments, roles, employees - done
 
-  * View departments, roles, employees
+  * View departments, roles, employees - done
 
-  * Update employee roles
+  * Update employee roles - done
 
 ## Bonus
 
@@ -98,7 +98,7 @@ How do you deliver this? Here are some guidelines:
 
   * Update employee managers
 
-  * View employees by manager
+  * View employees by manager - done
 
   * Delete departments, roles, and employees
 

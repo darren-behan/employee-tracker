@@ -42,11 +42,12 @@ const start = () => {
         "View all employees by manager",
         "Add employee",
         "Remove employee",
-        "Update employees role",
+        "Update employee role",
         "View all roles",
         "Add a role",
         "View all departments",
         "Add a department",
+        "Remove a department",
         "Exit",
       ],
     })
@@ -57,7 +58,7 @@ const start = () => {
           listEmployees();
           break;
         case "View all employees by department":
-          listEmployeesByDepartment();
+          listEmployeesByDepartment(); // Returns null for employee data - requires logic to return a message to advise no employees in this department
           break;
         case "View all employees by manager":
           listEmployeesByManager();
@@ -68,7 +69,7 @@ const start = () => {
         case "Remove employee":
           removeEmployee();
           break;
-        case "Update employees role":
+        case "Update employee role":
           updateEmployeeRole();
           break;
         case "View all roles":
@@ -82,6 +83,9 @@ const start = () => {
           break;
         case "Add a department":
           addDepartment();
+          break;
+        case "Remove a department":
+          removeDepartment();
           break;
         case "Exit":
           connection.end();
@@ -342,3 +346,28 @@ const addDepartment = (err, result) => {
     });
   });
 }
+
+// Remove department
+const removeDepartment = () => {
+  connection.query("SELECT name FROM employeeTracker_DB.department", (err, result) => {
+    if (err) throw err;
+    inquirer
+    .prompt([
+    {
+      name: "department",
+      type: "list",
+      message: "Choose the department that you want to remove:",
+      choices: result.map(department => department.name)
+    }
+    ]).then((answer) => {
+      const query =
+        "DELETE FROM department WHERE id = (SELECT id FROM(SELECT id FROM department WHERE name = ?) AS tmptable)";
+        connection.query(query, [answer.department], (err, res) => {
+          if (err) throw err;
+          console.log("Removed successfully!");
+          // re-prompt the user
+          start();
+      });
+    });
+  });
+};
