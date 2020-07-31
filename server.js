@@ -1,20 +1,21 @@
 const mysql = require("mysql");
 const inquirer = require("inquirer");
 const cTable = require("console.table");
+require("dotenv").config();
 
 // create the connection information for the sql database
 const connection = mysql.createConnection({
-  host: "localhost",
+  host: process.env.DB_HOST,
 
   // Your port; if not 3306
-  port: 3306,
+  port: process.env.DB_PORT,
 
   // Your username
-  user: "root",
+  user: process.env.DB_USERNAME,
 
   // Your password
-  password: "Andrew1312",
-  database: "employeeTracker_DB",
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
 });
 
 // connect to the mysql server and sql database
@@ -196,7 +197,7 @@ const addEmployee = () => {
         "INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, (SELECT id FROM role WHERE title = ? ), (SELECT id FROM (SELECT id FROM employee WHERE CONCAT(first_name,' ',last_name) = ? ) AS tmptable));";
         connection.query(query, [answer.firstName, answer.lastName, answer.role, answer.manager ], (err, res) => {
           if (err) throw err;
-          console.log("${firstName} ${lastName} has been added successfully!");
+          console.log("Added successfully!");
           // re-prompt the user
           start();
       });
