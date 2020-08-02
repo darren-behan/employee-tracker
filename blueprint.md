@@ -100,7 +100,7 @@ How do you deliver this? Here are some guidelines:
 
   * View employees by manager - done
 
-  * Delete departments, roles, and employees
+  * Delete departments, roles, and employees - done
 
   * View the total utilized budget of a department -- ie the combined salaries of all employees in that department
 
