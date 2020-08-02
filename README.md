@@ -27,7 +27,7 @@
 
 🚨 run `mysql -u root -p` in the terminal => then, run `source and the file path` => then, `quit` mysql => then, run `npm start` and answer the prompts presented in the terminal
 
-View live demo <a href="">here</a>
+View live demo <a href="https://drive.google.com/file/d/1BXL7Nv1bYQR8CsNGGPSbc6TmxPr4nTQd/view">here</a>
 
 ![Preview](./assets/images/employee-tracker.gif "Preview of Employee Tracker App")
 
