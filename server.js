@@ -59,7 +59,7 @@ const start = () => {
           listEmployees();
           break;
         case "View all employees by department":
-          listEmployeesByDepartment(); // Returns null for employee data - requires logic to return a message to advise no employees in this department
+          listEmployeesByDepartment();
           break;
         case "View all employees by manager":
           listEmployeesByManager();
@@ -328,7 +328,7 @@ const addRole = () => {
             name: "department",
             type: "list",
             message: "Please choose the department the role sits under:",
-            choices: result.map((department) => department.name), // Require an option of "none" to be added
+            choices: result.map((department) => department.name),
           },
         ])
         .then((answer) => {
